@@ -32,18 +32,59 @@ nix run github:svanellewee/yas-snippet
 ** 🛠 Installation & Configuration
 
 *** 1. Home Manager (Recommended)
-Add this to your =flake.nix= inputs:
-#+BEGIN_SRC nix
-inputs.yas-snippet.url = "github:svanellewee/yas-snippet";
-#+END_SRC
 
-Then, in your Home Manager configuration:
+Create a module!
+
+#+begin_src nix
+  
+  { pkgs, ... }:
+
+  let
+    yas-snippet = let
+      # Fetch the source code
+      src = pkgs.fetchFromGitHub {
+        owner = "svanellewee";
+        repo = "yas-snippet";
+        rev = "main"; # or a specific commit hash
+        sha256 = "sha256-xHLIkM0JRee3McpTTvfWUUILCApUx8XqRi/nUphtU+w=";  # Run once, replace with the error output hash
+      };
+      
+      # Define the python environment
+      pythonEnv = pkgs.python3.withPackages (ps: with ps; [ pillow tkinter ]);
+      
+      # System dependencies
+      runtimeDeps = if pkgs.stdenv.isDarwin 
+                    then [] 
+                    else [ pkgs.grim pkgs.slurp pkgs.wl-clipboard ];
+    in
+    pkgs.writeShellScriptBin "yas-snippet" ''
+      export PATH="${pkgs.lib.makeBinPath runtimeDeps}:$PATH"
+      ${pythonEnv}/bin/python3 ${src}/main.py
+    '';
+  in
+  {
+    home.packages = [ yas-snippet ];
+
+    # Sway keybinding integration
+    #wayland.windowManager.sway.config.keybindings = {
+    #  "Print" = "exec ${yas-snippet}/bin/yas-snippet";
+    #};
+  }
+
+
+#+end_src
+
+In your =home.nix= add the module!
+
+
 #+BEGIN_SRC nix
-{ inputs, pkgs, ... }: {
-  home.packages = [
-    inputs.yas-snippet.packages.${pkgs.system}.default
-  ];
-}
+  { config, pkgs, ... }:
+  {
+    imports = [
+      ./modules/yas-snippet.nix
+      # ...
+    ];
+    # ...
 #+END_SRC
 
 *** 2. Sway Keybind
