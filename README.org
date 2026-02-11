@@ -1,0 +1,75 @@
+#+TITLE: yas-snippet
+#+AUTHOR: User
+#+DESCRIPTION: Yet Another Screenshot Snippet - Cross-platform Annotator
+
+* 📸 yas-snippet
+**Yet Another Screenshot Snippet** – A lightweight, cross-platform screenshot annotation tool designed specifically for *macOS* and *Sway (Wayland)*.
+
+This vibe-coded abomanation is the result of frustration with current screenshot annotation tools.
+
+I'd prefer Flameshot but that works mainly on x11 or the pure macos window management system. If you want to use sway or aerospace, support is min.
+
+This tool is not going to be better than those. It's dumb, ugly and meant to be simple to use cross-platform. I might start to modify the vibe code at some point to make it pretty. This initial version is just so that I can do some work.
+
+** ✨ Features
+- *Native Capture*: Uses =screencapture= on macOS and =grim=/=slurp= on Sway.
+- *Instant Focus*: Custom logic (AppleScript on Mac, =focus_force= on Linux) to ensure the editor pops up in front.
+- *Smooth Drawing*: Continuous line drawing with round cap styles.
+- *Smart Clipboard*: Copies as =image/png= binary (no ASCII soup).
+- *Undo Support*: =Cmd+Z= (macOS) or =Ctrl+Z= (Linux).
+- *Nix-Powered*: Fully reproducible via Flakes.
+
+---
+
+** 🚀 Quick Start (No Install)
+If you have Nix installed, run it instantly:
+#+BEGIN_SRC bash
+nix run github:svanellewee/yas-snippet
+#+END_SRC
+
+---
+
+** 🛠 Installation & Configuration
+
+*** 1. Home Manager (Recommended)
+Add this to your =flake.nix= inputs:
+#+BEGIN_SRC nix
+inputs.yas-snippet.url = "github:svanellewee/yas-snippet";
+#+END_SRC
+
+Then, in your Home Manager configuration:
+#+BEGIN_SRC nix
+{ inputs, pkgs, ... }: {
+  home.packages = [
+    inputs.yas-snippet.packages.${pkgs.system}.default
+  ];
+}
+#+END_SRC
+
+*** 2. Sway Keybind
+Add this to your Sway config:
+#+BEGIN_SRC sway
+# ~/.config/sway/config
+bindsym Print exec yas-snippet
+
+# Ensure the window floats
+for_window [title="Annotator"] floating enable, sticky enable, border pixel 2
+#+END_SRC
+
+*** 3. macOS Setup
+1. Run =yas-snippet=.
+2. In *System Settings > Privacy & Security > Accessibility*, ensure your Terminal/IDE is enabled.
+
+---
+
+** 🛠 Development / Local Use
+To run the script locally:
+#+BEGIN_SRC bash
+nix develop
+python3 main.py
+#+END_SRC
+
+** 📦 Dependencies
+- *Python 3* (Pillow, Tkinter)
+- *Linux*: =grim=, =slurp=, =wl-clipboard=
+- *macOS*: Built-in =screencapture= and =osascript=

@@ -1,0 +1,11 @@
+[project]
+name = "yas-shot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "pillow>=12.1.1",
+    "pyclip>=0.7.0",
+    "tk>=0.1.0",
+]
